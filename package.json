@@ -1,6 +1,6 @@
 {
   "name": "auto-type-dep",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "a command to automatically fill up the @types corresponding to the dependency when you install a dependency",
   "bin": {
     "auto-type-dep": "bin/index.js"
@@ -17,6 +17,7 @@
   "author": "rwson",
   "license": "ISC",
   "dependencies": {
+    "@babel/runtime": "^7.9.2",
     "@kenworks/colorconsole": "^0.2.0",
     "commander": "^5.0.0",
     "cross-spawn": "^7.0.2",
