@@ -44,7 +44,7 @@ commander.helpInformation = () => {
     ${colorconsole.text('Option:', 'cyan')}
       ${colorconsole.text('-n, --npm', 'magenta')}       指定用npm来安装依赖
       ${colorconsole.text('-y, --yarn', 'magenta')}      指定用yarn来安装依赖
-      ${colorconsole.text('-js, --js', 'magenta')}  指定这是一个js项目, 只安装<pkg>, 不安装@types
+      ${colorconsole.text('-js, --js', 'magenta')}       指定这是一个js项目, 只安装<pkg>, 不安装@types
 
   ● ${colorconsole.text('remove <pkg>', 'green')}      卸载指定的依赖以及@types, 自动从项目下的package.json中查找, 如果存在, 就卸载
   `);
