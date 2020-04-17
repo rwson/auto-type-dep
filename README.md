@@ -6,9 +6,10 @@
 
 - `[sudo] npm install auto-type-dep -g`把`auto-type-dep`安装成全局模块
 
-- `auto-type-dep add <pkg> [option]`
+- `auto-type-dep add <pkg>[@version] [option]`
 
   安装相应的模块以及`@types`，如果在没有指定`-n`的情况下，判断项目中有没有`yarn.lock`文件，如果存在，就使用`yarn`安装，否则使用`npm`安装
+  @x.y.z可以指定具体版本号, 否则默认安装最新版本
 
   | 参数       | 快捷方式  |     | 作用                                       |
   | -------- | ----- | --- | ---------------------------------------- |

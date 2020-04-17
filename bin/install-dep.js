@@ -17,6 +17,8 @@ var _crossSpawn = _interopRequireDefault(require("cross-spawn"));
 
 var _colorconsole = _interopRequireDefault(require("@kenworks/colorconsole"));
 
+var _npmPackageArg = _interopRequireDefault(require("npm-package-arg"));
+
 var _ini = _interopRequireDefault(require("ini"));
 
 var _https = require("https");
@@ -87,7 +89,7 @@ var commandExist = /*#__PURE__*/function () {
 
 var installDep = /*#__PURE__*/function () {
   var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(pkg, opt) {
-    var yarnExist, npmExist, packageExist, typesPkg, isTypeScript, useYarn, finalCmd, isYarn, typeExist, cmds, _i, _cmds, cmdItem;
+    var yarnExist, npmExist, parsed, packageExist, typesPkg, isTypeScript, useYarn, needVersion, finalCmd, isYarn, typeExist, cmds, _i, _cmds, cmdItem;
 
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
@@ -103,14 +105,17 @@ var installDep = /*#__PURE__*/function () {
 
           case 5:
             npmExist = _context2.sent;
-            _context2.next = 8;
-            return searchPackage(pkg);
+            parsed = (0, _npmPackageArg["default"])(pkg);
+            _context2.next = 9;
+            return searchPackage(parsed.name);
 
-          case 8:
+          case 9:
             packageExist = _context2.sent;
-            typesPkg = "@types/".concat(pkg);
+            typesPkg = "@types/".concat(parsed.name);
             isTypeScript = !opt.js;
             useYarn = (0, _fs.existsSync)(yarnLock);
+            needVersion = parsed.rawSpec === parsed.fetchSpec;
+            pkg = parsed.name;
 
             if (!packageExist) {
               console.log(_colorconsole["default"].text("".concat(pkg, " \u4E0D\u5B58\u5728,\u8BF7\u5207\u6362\u955C\u50CF\u6E90\u6216\u8005\u68C0\u67E5\u5305\u540D\u662F\u5426\u6B63\u786E\u540E\u91CD\u8BD5"), 'red'));
@@ -146,19 +151,19 @@ var installDep = /*#__PURE__*/function () {
             isYarn = finalCmd === 'yarn';
             cmds.push({
               cmd: finalCmd,
-              pkgName: pkg,
-              args: [isYarn ? 'add' : 'install', pkg]
+              pkgName: needVersion ? "".concat(pkg, "@").concat(parsed.fetchSpec) : pkg,
+              args: [isYarn ? 'add' : 'install', needVersion ? "".concat(pkg, "@").concat(parsed.fetchSpec) : pkg]
             });
 
             if (!isTypeScript) {
-              _context2.next = 22;
+              _context2.next = 25;
               break;
             }
 
-            _context2.next = 20;
+            _context2.next = 23;
             return searchPackage(typesPkg);
 
-          case 20:
+          case 23:
             typeExist = _context2.sent;
 
             if (typeExist) {
@@ -169,9 +174,10 @@ var installDep = /*#__PURE__*/function () {
               });
             }
 
-          case 22:
+          case 25:
             for (_i = 0, _cmds = cmds; _i < _cmds.length; _i++) {
               cmdItem = _cmds[_i];
+              console.log();
               console.log('开始安装: ', _colorconsole["default"].text(cmdItem.pkgName, 'cyan'));
               console.log();
 
@@ -189,7 +195,7 @@ var installDep = /*#__PURE__*/function () {
 
             process.exit();
 
-          case 26:
+          case 29:
           case "end":
             return _context2.stop();
         }

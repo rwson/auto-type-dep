@@ -1,6 +1,7 @@
 import which from 'which';
 import spawn from 'cross-spawn';
 import colorconsole from '@kenworks/colorconsole';
+import npa from 'npm-package-arg';
 import ini from 'ini';
 
 import { get } from 'https';
@@ -46,10 +47,14 @@ const commandExist = async (cmd) => {
 const installDep = async (pkg, opt) => {
   const yarnExist = await commandExist('yarn');
   const npmExist = await commandExist('npm');
-  const packageExist = await searchPackage(pkg);
-  const typesPkg = `@types/${pkg}`;
+  const parsed = npa(pkg);
+  const packageExist = await searchPackage(parsed.name);
+  const typesPkg = `@types/${parsed.name}`;
   const isTypeScript = !opt.js;
   const useYarn = existsSync(yarnLock);
+  const needVersion = parsed.rawSpec === parsed.fetchSpec;
+
+  pkg = parsed.name;
 
   if (!packageExist) {
     console.log(colorconsole.text(`${pkg} 不存在,请切换镜像源或者检查包名是否正确后重试`, 'red'));
@@ -91,8 +96,8 @@ const installDep = async (pkg, opt) => {
 
   cmds.push({
     cmd: finalCmd,
-    pkgName: pkg,
-    args: [isYarn ? 'add' : 'install', pkg]
+    pkgName: needVersion ? `${pkg}@${parsed.fetchSpec}` : pkg,
+    args: [isYarn ? 'add' : 'install', needVersion ? `${pkg}@${parsed.fetchSpec}` : pkg]
   });
 
   if (isTypeScript) {
@@ -108,6 +113,7 @@ const installDep = async (pkg, opt) => {
   }
 
   for (const cmdItem of cmds) {
+    console.log();
     console.log('开始安装: ', colorconsole.text(cmdItem.pkgName, 'cyan'));
     console.log();
 
