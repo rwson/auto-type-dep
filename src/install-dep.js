@@ -12,7 +12,7 @@ const dir = process.cwd();
 const yarnLock = join(dir, 'yarn.lock');
 
 //  解析.npmrc中的内容变成一个对象
-const npmRc = join(process.env.HOME, '.npmrc');
+const npmRc = join(process.env.USERPROFILE || process.env.HOME, '.npmrc');
 const npmRcBuffer = readFileSync(npmRc, 'utf-8');
 const npmConfig = ini.parse(npmRcBuffer);
 
@@ -42,6 +42,11 @@ const commandExist = async (cmd) => {
   } catch (e) {
     return false;
   }
+};
+
+
+const installPkg = async (pkg, opt) => {
+
 };
 
 const installDep = async (pkg, opt) => {

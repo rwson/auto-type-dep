@@ -30,7 +30,7 @@ var _fs = require("fs");
 var dir = process.cwd();
 var yarnLock = (0, _path.join)(dir, 'yarn.lock'); //  解析.npmrc中的内容变成一个对象
 
-var npmRc = (0, _path.join)(process.env.HOME, '.npmrc');
+var npmRc = (0, _path.join)(process.env.USERPROFILE || process.env.HOME, '.npmrc');
 var npmRcBuffer = (0, _fs.readFileSync)(npmRc, 'utf-8');
 
 var npmConfig = _ini["default"].parse(npmRcBuffer); //  拼凑出包名的完整路径
@@ -87,30 +87,48 @@ var commandExist = /*#__PURE__*/function () {
   };
 }();
 
-var installDep = /*#__PURE__*/function () {
+var installPkg = /*#__PURE__*/function () {
   var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(pkg, opt) {
-    var yarnExist, npmExist, parsed, packageExist, typesPkg, isTypeScript, useYarn, needVersion, finalCmd, isYarn, typeExist, cmds, _i, _cmds, cmdItem;
-
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-            _context2.next = 2;
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+
+  return function installPkg(_x2, _x3) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+
+var installDep = /*#__PURE__*/function () {
+  var _ref3 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(pkg, opt) {
+    var yarnExist, npmExist, parsed, packageExist, typesPkg, isTypeScript, useYarn, needVersion, finalCmd, isYarn, typeExist, cmds, _i, _cmds, cmdItem;
+
+    return _regenerator["default"].wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            _context3.next = 2;
             return commandExist('yarn');
 
           case 2:
-            yarnExist = _context2.sent;
-            _context2.next = 5;
+            yarnExist = _context3.sent;
+            _context3.next = 5;
             return commandExist('npm');
 
           case 5:
-            npmExist = _context2.sent;
+            npmExist = _context3.sent;
             parsed = (0, _npmPackageArg["default"])(pkg);
-            _context2.next = 9;
+            _context3.next = 9;
             return searchPackage(parsed.name);
 
           case 9:
-            packageExist = _context2.sent;
+            packageExist = _context3.sent;
             typesPkg = "@types/".concat(parsed.name);
             isTypeScript = !opt.js;
             useYarn = (0, _fs.existsSync)(yarnLock);
@@ -156,15 +174,15 @@ var installDep = /*#__PURE__*/function () {
             });
 
             if (!isTypeScript) {
-              _context2.next = 25;
+              _context3.next = 25;
               break;
             }
 
-            _context2.next = 23;
+            _context3.next = 23;
             return searchPackage(typesPkg);
 
           case 23:
-            typeExist = _context2.sent;
+            typeExist = _context3.sent;
 
             if (typeExist) {
               cmds.push({
@@ -197,14 +215,14 @@ var installDep = /*#__PURE__*/function () {
 
           case 29:
           case "end":
-            return _context2.stop();
+            return _context3.stop();
         }
       }
-    }, _callee2);
+    }, _callee3);
   }));
 
-  return function installDep(_x2, _x3) {
-    return _ref2.apply(this, arguments);
+  return function installDep(_x4, _x5) {
+    return _ref3.apply(this, arguments);
   };
 }();
 
