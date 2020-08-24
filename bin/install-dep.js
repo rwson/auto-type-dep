@@ -7,9 +7,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
 var _regenerator = _interopRequireDefault(require("@babel/runtime/regenerator"));
 
 var _asyncToGenerator2 = _interopRequireDefault(require("@babel/runtime/helpers/asyncToGenerator"));
+
+var _commander = _interopRequireDefault(require("commander"));
 
 var _which = _interopRequireDefault(require("which"));
 
@@ -27,14 +31,25 @@ var _path = require("path");
 
 var _fs = require("fs");
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _createForOfIteratorHelper(o) { if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) { if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) { var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var it, normalCompletion = true, didErr = false, err; return { s: function s() { it = o[Symbol.iterator](); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(n); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 var dir = process.cwd();
 var yarnLock = (0, _path.join)(dir, 'yarn.lock'); //  解析.npmrc中的内容变成一个对象
 
 var npmRc = (0, _path.join)(process.env.USERPROFILE || process.env.HOME, '.npmrc');
 var npmRcBuffer = (0, _fs.readFileSync)(npmRc, 'utf-8');
 
-var npmConfig = _ini["default"].parse(npmRcBuffer); //  拼凑出包名的完整路径
+var npmConfig = _ini["default"].parse(npmRcBuffer);
 
+var excludeArgs = ['add', '--js', '-js', '--npm', '-n', '--yarn', '--y']; //  拼凑出包名的完整路径
 
 var packageUrl = function packageUrl(pkg) {
   return "".concat(npmConfig.registry || 'https://www.npmjs.com/package/').concat(pkg);
@@ -89,49 +104,20 @@ var commandExist = /*#__PURE__*/function () {
 
 var installPkg = /*#__PURE__*/function () {
   var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(pkg, opt) {
+    var parsed, packageExist, typesPkg, isTypeScript, needVersion, finalCmd, isYarn, typeExist, cmds, _i, _cmds, cmdItem;
+
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
-          case "end":
-            return _context2.stop();
-        }
-      }
-    }, _callee2);
-  }));
-
-  return function installPkg(_x2, _x3) {
-    return _ref2.apply(this, arguments);
-  };
-}();
-
-var installDep = /*#__PURE__*/function () {
-  var _ref3 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(pkg, opt) {
-    var yarnExist, npmExist, parsed, packageExist, typesPkg, isTypeScript, useYarn, needVersion, finalCmd, isYarn, typeExist, cmds, _i, _cmds, cmdItem;
-
-    return _regenerator["default"].wrap(function _callee3$(_context3) {
-      while (1) {
-        switch (_context3.prev = _context3.next) {
-          case 0:
-            _context3.next = 2;
-            return commandExist('yarn');
-
-          case 2:
-            yarnExist = _context3.sent;
-            _context3.next = 5;
-            return commandExist('npm');
-
-          case 5:
-            npmExist = _context3.sent;
             parsed = (0, _npmPackageArg["default"])(pkg);
-            _context3.next = 9;
+            _context2.next = 3;
             return searchPackage(parsed.name);
 
-          case 9:
-            packageExist = _context3.sent;
+          case 3:
+            packageExist = _context2.sent;
             typesPkg = "@types/".concat(parsed.name);
             isTypeScript = !opt.js;
-            useYarn = (0, _fs.existsSync)(yarnLock);
             needVersion = parsed.rawSpec === parsed.fetchSpec;
             pkg = parsed.name;
 
@@ -143,23 +129,23 @@ var installDep = /*#__PURE__*/function () {
             cmds = []; //  指定了npm就用npm安装, 否则优先使用yarn安装
 
             if (opt.npm) {
-              if (npmExist) {
+              if (opt.npmExist) {
                 finalCmd = 'npm';
-              } else if (yarnExist) {
+              } else if (opt.yarnExist) {
                 finalCmd = 'yarn';
               } else {
                 process.exit();
               }
             } else if (opt.yarn) {
-              if (yarnExist) {
+              if (opt.yarnExist) {
                 finalCmd = 'yarn';
-              } else if (npmExist) {
+              } else if (opt.npmExist) {
                 finalCmd = 'npm';
               } else {
                 process.exit();
               }
             } else {
-              if (useYarn) {
+              if (opt.useYarn) {
                 finalCmd = 'yarn';
               } else {
                 finalCmd = 'npm';
@@ -174,15 +160,15 @@ var installDep = /*#__PURE__*/function () {
             });
 
             if (!isTypeScript) {
-              _context3.next = 25;
+              _context2.next = 18;
               break;
             }
 
-            _context3.next = 23;
+            _context2.next = 16;
             return searchPackage(typesPkg);
 
-          case 23:
-            typeExist = _context3.sent;
+          case 16:
+            typeExist = _context2.sent;
 
             if (typeExist) {
               cmds.push({
@@ -192,7 +178,7 @@ var installDep = /*#__PURE__*/function () {
               });
             }
 
-          case 25:
+          case 18:
             for (_i = 0, _cmds = cmds; _i < _cmds.length; _i++) {
               cmdItem = _cmds[_i];
               console.log();
@@ -204,21 +190,97 @@ var installDep = /*#__PURE__*/function () {
               });
             }
 
-            console.log('安装完成');
-
             if (isTypeScript && !typeExist) {
               console.log();
               console.log(_colorconsole["default"].text("@types/".concat(pkg), 'red'), '未找到, 请自行编写声明文件');
             }
 
+          case 20:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+
+  return function installPkg(_x2, _x3) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+
+var installDep = /*#__PURE__*/function () {
+  var _ref3 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee3(pkg, opt) {
+    var pkgs, yarnExist, npmExist, useYarn, _iterator, _step, _pkg;
+
+    return _regenerator["default"].wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            pkgs = _commander["default"].args.filter(function (arg) {
+              return !excludeArgs.includes(arg);
+            });
+            _context3.next = 3;
+            return commandExist('yarn');
+
+          case 3:
+            yarnExist = _context3.sent;
+            _context3.next = 6;
+            return commandExist('npm');
+
+          case 6:
+            npmExist = _context3.sent;
+            useYarn = (0, _fs.existsSync)(yarnLock);
+            _iterator = _createForOfIteratorHelper(pkgs);
+            _context3.prev = 9;
+
+            _iterator.s();
+
+          case 11:
+            if ((_step = _iterator.n()).done) {
+              _context3.next = 17;
+              break;
+            }
+
+            _pkg = _step.value;
+            _context3.next = 15;
+            return installPkg(_pkg, _objectSpread({}, opt, {
+              yarnExist: yarnExist,
+              npmExist: npmExist,
+              useYarn: useYarn
+            }));
+
+          case 15:
+            _context3.next = 11;
+            break;
+
+          case 17:
+            _context3.next = 22;
+            break;
+
+          case 19:
+            _context3.prev = 19;
+            _context3.t0 = _context3["catch"](9);
+
+            _iterator.e(_context3.t0);
+
+          case 22:
+            _context3.prev = 22;
+
+            _iterator.f();
+
+            return _context3.finish(22);
+
+          case 25:
+            console.log();
+            console.log('安装完成');
             process.exit();
 
-          case 29:
+          case 28:
           case "end":
             return _context3.stop();
         }
       }
-    }, _callee3);
+    }, _callee3, null, [[9, 19, 22, 25]]);
   }));
 
   return function installDep(_x4, _x5) {

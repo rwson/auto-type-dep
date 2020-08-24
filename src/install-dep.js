@@ -1,3 +1,4 @@
+import commander from 'commander';
 import which from 'which';
 import spawn from 'cross-spawn';
 import colorconsole from '@kenworks/colorconsole';
@@ -15,6 +16,16 @@ const yarnLock = join(dir, 'yarn.lock');
 const npmRc = join(process.env.USERPROFILE || process.env.HOME, '.npmrc');
 const npmRcBuffer = readFileSync(npmRc, 'utf-8');
 const npmConfig = ini.parse(npmRcBuffer);
+
+const excludeArgs = [
+  'add',
+  '--js',
+  '-js',
+  '--npm',
+  '-n',
+  '--yarn',
+  '--y'
+];
 
 //  拼凑出包名的完整路径
 const packageUrl = (pkg) => `${npmConfig.registry || 'https://www.npmjs.com/package/'}${pkg}`;
@@ -46,17 +57,10 @@ const commandExist = async (cmd) => {
 
 
 const installPkg = async (pkg, opt) => {
-
-};
-
-const installDep = async (pkg, opt) => {
-  const yarnExist = await commandExist('yarn');
-  const npmExist = await commandExist('npm');
   const parsed = npa(pkg);
   const packageExist = await searchPackage(parsed.name);
   const typesPkg = `@types/${parsed.name}`;
   const isTypeScript = !opt.js;
-  const useYarn = existsSync(yarnLock);
   const needVersion = parsed.rawSpec === parsed.fetchSpec;
 
   pkg = parsed.name;
@@ -74,23 +78,23 @@ const installDep = async (pkg, opt) => {
 
   //  指定了npm就用npm安装, 否则优先使用yarn安装
   if (opt.npm) {
-    if (npmExist) {
+    if (opt.npmExist) {
       finalCmd = 'npm';
-    } else if(yarnExist) {
+    } else if(opt.yarnExist) {
       finalCmd = 'yarn';
     } else {
       process.exit();
     }
   } else if (opt.yarn) {
-    if (yarnExist) {
+    if (opt.yarnExist) {
       finalCmd = 'yarn';
-    } else if(npmExist) {
+    } else if(opt.npmExist) {
       finalCmd = 'npm';
     } else {
       process.exit();
     }
   } else {
-    if (useYarn) {
+    if (opt.useYarn) {
       finalCmd = 'yarn';
     } else {
       finalCmd = 'npm';
@@ -127,12 +131,31 @@ const installDep = async (pkg, opt) => {
     });
   }
 
-  console.log('安装完成');
-
   if (isTypeScript && !typeExist) {
     console.log();
     console.log(colorconsole.text(`@types/${pkg}`, 'red'), '未找到, 请自行编写声明文件');
   }
+};
+
+const installDep = async (pkg, opt) => {
+
+  const pkgs = commander.args.filter((arg) => !excludeArgs.includes(arg));
+
+  const yarnExist = await commandExist('yarn');
+  const npmExist = await commandExist('npm');
+  const useYarn = existsSync(yarnLock);
+
+  for (const pkg of pkgs) {
+    await installPkg(pkg, {
+      ...opt,
+      yarnExist,
+      npmExist,
+      useYarn
+    });
+  }
+
+  console.log();
+  console.log('安装完成');
 
   process.exit();
 };

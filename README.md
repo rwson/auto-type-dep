@@ -8,7 +8,7 @@
 
 - `[sudo] npm install auto-type-dep -g`把`auto-type-dep`安装成全局模块
 
-- `auto-type-dep add <pkg>[@version] [option]`
+- `auto-type-dep add <pkg1>[@version] <pkg2>[@version] <pkg3>[@version] [option]` 安装(多个)npm包
 
   安装相应的模块以及`@types`，如果在没有指定`-n`的情况下，判断项目中有没有`yarn.lock`文件，如果存在，就使用`yarn`安装，否则使用`npm`安装
   @x.y.z可以指定具体版本号, 否则默认安装最新版本
@@ -19,7 +19,7 @@
   | `--yarn` | `-y`  |  指定用`yarn`进行安装                            |
   | `--js`   | `-js` | 指定当前项目是一个`javascript`项目，不需要安装对应的`@types` |
 
-- `auto-type-dep remove <pkg>`
+- `auto-type-dep remove <pkg1> <pkg2> <pkg3>` 卸载(多个)npm包
 
   卸载相应的模块以及`@types`，首先会判断项目中有没有`yarn.lock`文件，如果存在，就使用  `yarn`卸载，否则使用`npm`卸载
 

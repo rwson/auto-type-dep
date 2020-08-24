@@ -1,12 +1,13 @@
 {
   "name": "auto-type-dep",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "a command to automatically fill up the @types corresponding to the dependency when you install a dependency",
   "bin": {
     "auto-type-dep": "bin/index.js"
   },
   "scripts": {
-    "build": "npx babel ./src --out-dir ./bin"
+    "build": "npx babel ./src --out-dir ./bin",
+    "test": "npx babel-node ./src"
   },
   "keywords": [
     "npm",
@@ -29,6 +30,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
+    "@babel/node": "^7.10.5",
     "@babel/plugin-transform-runtime": "^7.9.0",
     "@babel/preset-env": "^7.9.5"
   }

@@ -1,3 +1,4 @@
+import commander from 'commander';
 import readPkg from 'read-pkg';
 import spawn from 'cross-spawn';
 import colorconsole from '@kenworks/colorconsole';
@@ -10,15 +11,22 @@ const packageJsonPath = join(dir, 'package.json');
 
 const yarnLock = join(dir, 'yarn.lock');
 
-const removePkg = async(pkg) => {
-  const { dependencies, devDependencies } = await readPkg(packageJsonPath);
-  const typesPkg = `@types/${pkg}`;
-  const useYarn = existsSync(yarnLock);
+const excludeArgs = [
+  'remove',
+  '--js',
+  '-js',
+  '--npm',
+  '-n',
+  '--yarn',
+  '--y'
+];
 
-  const cmds = [];
+const remove = (pkg, dependencies, devDependencies, useYarn) => {
+  const typesPkg = `@types/${pkg}`;
+  const cmd = [];
 
   if (dependencies[pkg]) {
-    cmds.push({
+    cmd.push({
       cmd: useYarn ? 'yarn' : 'npm',
       pkgName: pkg,
       args: [useYarn ? 'remove' : 'uninstall', pkg]
@@ -26,18 +34,32 @@ const removePkg = async(pkg) => {
   }
 
   if (devDependencies[typesPkg]) {
-    cmds.push({
+    cmd.push({
       cmd: useYarn ? 'yarn' : 'npm',
       pkgName: typesPkg,
       args: [useYarn ? 'remove' : 'uninstall', typesPkg]
     });
   }
-  
-  if (cmds.length === 0) {
-    console.log('卸载失败: ', colorconsole.text(pkg, 'red'), '、', colorconsole.text(typesPkg, 'red'), '都不存在, 请检查声明文件是否有冗余内容');
-    console.log();
 
-    process.exit();
+  return cmd;
+};
+
+const removePkg = async(pkg) => {
+  const pkgs = commander.args.filter((arg) => !excludeArgs.includes(arg));
+
+  const { dependencies, devDependencies } = await readPkg(packageJsonPath);
+  const typesPkg = `@types/${pkg}`;
+  const useYarn = existsSync(yarnLock);
+
+  let cmds = [];
+
+  pkgs.forEach((pkg) => {
+    cmds = cmds.concat(remove(pkg, dependencies, devDependencies, useYarn));
+  })
+
+  if (cmds.length === 0) {
+    console.log(colorconsole.text(pkg, 'red'), '、', colorconsole.text(typesPkg, 'red'), '都不存在, 请检查声明文件是否有冗余内容');
+    console.log();
   }
 
   for (const cmdItem of cmds) {
@@ -49,8 +71,9 @@ const removePkg = async(pkg) => {
     });
   }
 
+  console.log();
   console.log('卸载完成');
-  process.exit();
+  // process.exit();
 };
 
 export default removePkg;
