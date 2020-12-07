@@ -1,6 +1,6 @@
 {
   "name": "auto-type-dep",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "a command to automatically fill up the @types corresponding to the dependency when you install a dependency",
   "bin": {
     "auto-type-dep": "bin/index.js"
@@ -29,6 +29,7 @@
     "which": "^2.0.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.0.0",
     "@babel/core": "^7.9.0",
     "@babel/node": "^7.10.5",
     "@babel/plugin-transform-runtime": "^7.9.0",
