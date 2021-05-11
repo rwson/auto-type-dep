@@ -30,7 +30,15 @@ const excludeArgs = [
 ];
 
 //  拼凑出包名的完整路径
-const packageUrl = (pkg) => `${npmConfig.registry || 'https://www.npmjs.com/package/'}${pkg}`;
+const packageUrl = (pkg) => {
+  let originUrl = npmConfig.registry || 'https://www.npmjs.com/package/';
+
+  if (!originUrl.endsWith('/')) {
+    originUrl = `${originUrl}/`;
+  }
+
+  return `${originUrl}${pkg}`;
+};
 
 //  搜索该包是否存在当前镜像
 const searchPackage = (pkg) => {

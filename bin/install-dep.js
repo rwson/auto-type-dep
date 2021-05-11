@@ -52,7 +52,13 @@ var npmConfig = _ini["default"].parse(npmRcBuffer);
 var excludeArgs = ['add', '--js', '-js', '--npm', '-n', '--yarn', '--y']; //  拼凑出包名的完整路径
 
 var packageUrl = function packageUrl(pkg) {
-  return "".concat(npmConfig.registry || 'https://www.npmjs.com/package/').concat(pkg);
+  var originUrl = npmConfig.registry || 'https://www.npmjs.com/package/';
+
+  if (!originUrl.endsWith('/')) {
+    originUrl = "".concat(originUrl, "/");
+  }
+
+  return "".concat(originUrl).concat(pkg);
 }; //  搜索该包是否存在当前镜像
 
 
