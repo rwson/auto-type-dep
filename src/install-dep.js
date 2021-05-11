@@ -23,6 +23,8 @@ const excludeArgs = [
   '-js',
   '--npm',
   '-n',
+  '--pnpm',
+  '-p',
   '--yarn',
   '--y'
 ];

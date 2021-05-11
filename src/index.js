@@ -46,6 +46,7 @@ commander.helpInformation = () => {
   
     ${colorconsole.text('Option:', 'cyan')}
       ${colorconsole.text('-n, --npm', 'magenta')}    指定用npm来安装依赖
+      ${colorconsole.text('-p, --pnpm', 'magenta')}   指定用pnpm来安装依赖
       ${colorconsole.text('-y, --yarn', 'magenta')}   指定用yarn来安装依赖
       ${colorconsole.text('-js, --js', 'magenta')}    指定这是一个js项目, 只安装<pkg>, 不安装@types
 
@@ -61,6 +62,7 @@ commander
   .command('add <pkg>')
   .description('安装指定的依赖以及@types')
   .option('-n, --npm', '指定用npm来安装依赖')
+  .option('-p, --pnpm', '指定用pnpm来安装依赖')
   .option('-y, --yarn', '指定用yarn来安装依赖')
   .option('-js, --js', '指定这是一个js项目, 只安装<pkg>, 不安装@types')
   .action(installDep);
