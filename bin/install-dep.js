@@ -42,36 +42,68 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 var dir = process.cwd();
-var yarnLock = (0, _path.join)(dir, 'yarn.lock'); //  解析.npmrc中的内容变成一个对象
+var yarnLock = (0, _path.join)(dir, "yarn.lock");
+var dtsSuffix = /d\.ts$/; //  解析.npmrc中的内容变成一个对象
 
-var npmRc = (0, _path.join)(process.env.USERPROFILE || process.env.HOME, '.npmrc');
-var npmRcBuffer = (0, _fs.readFileSync)(npmRc, 'utf-8');
+var npmRc = (0, _path.join)(process.env.USERPROFILE || process.env.HOME, ".npmrc");
+var npmRcBuffer = (0, _fs.readFileSync)(npmRc, "utf-8");
 
 var npmConfig = _ini["default"].parse(npmRcBuffer);
 
-var excludeArgs = ['add', '--js', '-js', '--npm', '-n', '--yarn', '--y']; //  拼凑出包名的完整路径
+var excludeArgs = ["add", "--js", "-js", "--npm", "-n", "--pnpm", "-p", "--yarn", "--y"]; //  拼凑出包名的完整路径
 
 var packageUrl = function packageUrl(pkg) {
-  var originUrl = npmConfig.registry || 'https://www.npmjs.com/package/';
+  var originUrl = npmConfig.registry || "https://www.npmjs.com/package/";
 
-  if (!originUrl.endsWith('/')) {
+  if (!originUrl.endsWith("/")) {
     originUrl = "".concat(originUrl, "/");
   }
 
   return "".concat(originUrl).concat(pkg);
+}; //  判断是否存在typings
+
+
+var isExportedTypings = function isExportedTypings(pkg, version) {
+  return new Promise(function (resolve) {
+    (0, _https.get)("https://registry.npmmirror.com/".concat(pkg), function (res) {
+      var data = "";
+      res.on("data", function (chunk) {
+        data += chunk;
+      });
+      res.on("end", function () {
+        try {
+          var _JSON$parse = JSON.parse(data.toString("utf8")),
+              _JSON$parse$versions = _JSON$parse.versions,
+              versions = _JSON$parse$versions === void 0 ? {} : _JSON$parse$versions;
+
+          var targetVersion = versions[version] || Object.values(versions)[0];
+
+          if (!targetVersion) {
+            resolve(false);
+          } else {
+            resolve(dtsSuffix.test(targetVersion.typings));
+          }
+        } catch (e) {
+          resolve(false);
+        }
+      });
+    }).on("error", function (e) {
+      resolve(false);
+    });
+  });
 }; //  搜索该包是否存在当前镜像
 
 
 var searchPackage = function searchPackage(pkg) {
   var url = packageUrl(pkg);
-  return new Promise(function (resolve, reject) {
+  return new Promise(function (resolve) {
     (0, _https.get)(url, function (res) {
       if (res.statusCode === 404) {
         resolve(false);
       } else {
         resolve(true);
       }
-    }).on('error', function (e) {
+    }).on("error", function (e) {
       resolve(false);
     });
   });
@@ -110,7 +142,7 @@ var commandExist = /*#__PURE__*/function () {
 
 var installPkg = /*#__PURE__*/function () {
   var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(pkg, opt) {
-    var parsed, packageExist, typesPkg, isTypeScript, needVersion, finalCmd, isYarn, typeExist, cmds, _i, _cmds, cmdItem;
+    var parsed, packageExist, typesPkg, isTypeScript, needVersion, finalCmd, isYarn, typeExist, exportedDts, cmds, _i, _cmds, cmdItem;
 
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
@@ -128,7 +160,7 @@ var installPkg = /*#__PURE__*/function () {
             pkg = parsed.name;
 
             if (!packageExist) {
-              console.log(_colorconsole["default"].text("".concat(pkg, " \u4E0D\u5B58\u5728,\u8BF7\u5207\u6362\u955C\u50CF\u6E90\u6216\u8005\u68C0\u67E5\u5305\u540D\u662F\u5426\u6B63\u786E\u540E\u91CD\u8BD5"), 'red'));
+              console.log(_colorconsole["default"].text("".concat(pkg, " does not exist, please switch the mirror source or check whether the package name is correct and try again"), "red"));
               process.exit();
             }
 
@@ -136,33 +168,33 @@ var installPkg = /*#__PURE__*/function () {
 
             if (opt.npm) {
               if (opt.npmExist) {
-                finalCmd = 'npm';
+                finalCmd = "npm";
               } else if (opt.yarnExist) {
-                finalCmd = 'yarn';
+                finalCmd = "yarn";
               } else {
                 process.exit();
               }
             } else if (opt.yarn) {
               if (opt.yarnExist) {
-                finalCmd = 'yarn';
+                finalCmd = "yarn";
               } else if (opt.npmExist) {
-                finalCmd = 'npm';
+                finalCmd = "npm";
               } else {
                 process.exit();
               }
             } else {
               if (opt.useYarn) {
-                finalCmd = 'yarn';
+                finalCmd = "yarn";
               } else {
-                finalCmd = 'npm';
+                finalCmd = "npm";
               }
             }
 
-            isYarn = finalCmd === 'yarn';
+            isYarn = finalCmd === "yarn";
             cmds.push({
               cmd: finalCmd,
               pkgName: needVersion ? "".concat(pkg, "@").concat(parsed.fetchSpec) : pkg,
-              args: [isYarn ? 'add' : 'install', needVersion ? "".concat(pkg, "@").concat(parsed.fetchSpec) : pkg]
+              args: [isYarn ? "add" : "install", needVersion ? "".concat(pkg, "@").concat(parsed.fetchSpec) : pkg]
             });
 
             if (!isTypeScript) {
@@ -180,7 +212,7 @@ var installPkg = /*#__PURE__*/function () {
               cmds.push({
                 cmd: finalCmd,
                 pkgName: typesPkg,
-                args: [isYarn ? 'add' : 'install', typesPkg, isYarn ? '--dev' : '--save-dev']
+                args: [isYarn ? "add" : "install", typesPkg, isYarn ? "--dev" : "--save-dev"]
               });
             }
 
@@ -188,7 +220,7 @@ var installPkg = /*#__PURE__*/function () {
             for (_i = 0, _cmds = cmds; _i < _cmds.length; _i++) {
               cmdItem = _cmds[_i];
               console.log();
-              console.log('开始安装: ', _colorconsole["default"].text(cmdItem.pkgName, 'cyan'));
+              console.log("start installing package", _colorconsole["default"].text(cmdItem.pkgName, "cyan"));
               console.log();
 
               _crossSpawn["default"].sync(cmdItem.cmd, cmdItem.args, {
@@ -196,12 +228,31 @@ var installPkg = /*#__PURE__*/function () {
               });
             }
 
-            if (isTypeScript && !typeExist) {
-              console.log();
-              console.log(_colorconsole["default"].text("@types/".concat(pkg), 'red'), '未找到, 请自行编写声明文件');
+            _context2.next = 21;
+            return isExportedTypings(parsed.name, parsed.fetchSpec);
+
+          case 21:
+            exportedDts = _context2.sent;
+
+            if (!(isTypeScript && !typeExist)) {
+              _context2.next = 28;
+              break;
             }
 
-          case 20:
+            console.log();
+
+            if (!exportedDts) {
+              _context2.next = 27;
+              break;
+            }
+
+            console.log("package", _colorconsole["default"].text("".concat(parsed.name), "cyan"), "already exported d.ts declaration file, skip installing", _colorconsole["default"].text("@types/".concat(parsed.name), "cyan"));
+            return _context2.abrupt("return");
+
+          case 27:
+            console.log(_colorconsole["default"].text("@types/".concat(parsed.name), "red"), "not found, please write your own declaration file");
+
+          case 28:
           case "end":
             return _context2.stop();
         }
@@ -226,12 +277,12 @@ var installDep = /*#__PURE__*/function () {
               return !excludeArgs.includes(arg);
             });
             _context3.next = 3;
-            return commandExist('yarn');
+            return commandExist("yarn");
 
           case 3:
             yarnExist = _context3.sent;
             _context3.next = 6;
-            return commandExist('npm');
+            return commandExist("npm");
 
           case 6:
             npmExist = _context3.sent;
@@ -278,7 +329,7 @@ var installDep = /*#__PURE__*/function () {
 
           case 25:
             console.log();
-            console.log('安装完成');
+            console.log("auto-type-dep: all done!");
             process.exit();
 
           case 28:

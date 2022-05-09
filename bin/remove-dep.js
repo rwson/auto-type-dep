@@ -83,7 +83,7 @@ var removePkg = /*#__PURE__*/function () {
             });
 
             if (cmds.length === 0) {
-              console.log(_colorconsole["default"].text(pkg, 'red'), '、', _colorconsole["default"].text(typesPkg, 'red'), '都不存在, 请检查声明文件是否有冗余内容');
+              console.log(_colorconsole["default"].text(pkg, 'red'), '、', _colorconsole["default"].text(typesPkg, 'red'), 'does not exist, please check the declaration file for redundant content');
               console.log();
             }
 
@@ -92,7 +92,7 @@ var removePkg = /*#__PURE__*/function () {
             try {
               for (_iterator.s(); !(_step = _iterator.n()).done;) {
                 cmdItem = _step.value;
-                console.log('开始卸载: ', _colorconsole["default"].text(cmdItem.pkgName, 'cyan'));
+                console.log('start removing', _colorconsole["default"].text(cmdItem.pkgName, 'cyan'));
                 console.log();
 
                 _crossSpawn["default"].sync(cmdItem.cmd, cmdItem.args, {
@@ -106,7 +106,7 @@ var removePkg = /*#__PURE__*/function () {
             }
 
             console.log();
-            console.log('卸载完成'); // process.exit();
+            console.log("auto-type-dep: all done!");
 
           case 15:
           case "end":

@@ -58,12 +58,12 @@ const removePkg = async(pkg) => {
   })
 
   if (cmds.length === 0) {
-    console.log(colorconsole.text(pkg, 'red'), '、', colorconsole.text(typesPkg, 'red'), '都不存在, 请检查声明文件是否有冗余内容');
+    console.log(colorconsole.text(pkg, 'red'), '、', colorconsole.text(typesPkg, 'red'), 'does not exist, please check the declaration file for redundant content');
     console.log();
   }
 
   for (const cmdItem of cmds) {
-    console.log('开始卸载: ', colorconsole.text(cmdItem.pkgName, 'cyan'));
+    console.log('start removing', colorconsole.text(cmdItem.pkgName, 'cyan'));
     console.log();
 
     spawn.sync(cmdItem.cmd, cmdItem.args, {
@@ -72,8 +72,7 @@ const removePkg = async(pkg) => {
   }
 
   console.log();
-  console.log('卸载完成');
-  // process.exit();
+  console.log("auto-type-dep: all done!");
 };
 
 export default removePkg;
