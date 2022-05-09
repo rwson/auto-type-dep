@@ -23,4 +23,3 @@
 
   卸载相应的模块以及`@types`，首先会判断项目中有没有`yarn.lock`文件，如果存在，就使用  `yarn`卸载，否则使用`npm`卸载
 
-![帮助文档](https://raw.githubusercontent.com/rwson/auto-type-dep/master/screen.png)

@@ -12,7 +12,7 @@ const showTip = (cmd) => {
   if (!cmd) {
     if (process.argv.length < 3) {
       console.log();
-      console.log('请指定子命令以及包名: ');
+      console.log('Please specify subcommand and package name');
       console.log(
         colorconsole.text('auto-type-dep add', 'cyan'),
         colorconsole.text('<pkg>[@version] [options]', 'green')
@@ -23,11 +23,6 @@ const showTip = (cmd) => {
         colorconsole.text('<pkg>', 'green')
       );
       console.log();
-      console.log(
-        '通过',
-        colorconsole.text('auto-type-dep --help', 'cyan'),
-        '查看帮助文档'
-      );
       process.exit();
     }
   } else {
@@ -42,16 +37,15 @@ commander.helpInformation = () => {
   ${colorconsole.text('Commands:', 'yellow')}
 
   ● ${colorconsole.text('add <pkg>[@version] [option]', 'green')}
-    安装指定的依赖以及@types, 通过@x.y.z指定版本
+    Install the specified dependencies and @types, specify the version via @x.y.z
   
     ${colorconsole.text('Option:', 'cyan')}
-      ${colorconsole.text('-n, --npm', 'magenta')}    指定用npm来安装依赖
-      ${colorconsole.text('-p, --pnpm', 'magenta')}   指定用pnpm来安装依赖
-      ${colorconsole.text('-y, --yarn', 'magenta')}   指定用yarn来安装依赖
-      ${colorconsole.text('-js, --js', 'magenta')}    指定这是一个js项目, 只安装<pkg>, 不安装@types
+      ${colorconsole.text('-n, --npm', 'magenta')}    Specify install dependencies via npm
+      ${colorconsole.text('-y, --yarn', 'magenta')}   Specify install dependencies via yarn
+      ${colorconsole.text('-js, --js', 'magenta')}    Specify that this is a js project, only install <pkg>, not install @types
 
   ● ${colorconsole.text('remove <pkg>', 'green')}
-    卸载指定的依赖以及@types, 自动从项目下的package.json中查找, 如果存在, 就卸载
+    Uninstall the specified dependencies and @types, automatically find them from the package.json under the project, and uninstall if they exist
   `);
   return '';
 };
@@ -60,28 +54,26 @@ commander.version(pkg.version);
 
 commander
   .command('add <pkg>')
-  .description('安装指定的依赖以及@types')
-  .option('-n, --npm', '指定用npm来安装依赖')
-  .option('-p, --pnpm', '指定用pnpm来安装依赖')
-  .option('-y, --yarn', '指定用yarn来安装依赖')
-  .option('-js, --js', '指定这是一个js项目, 只安装<pkg>, 不安装@types')
+  .description('Install the specified dependencies and@types')
+  .option('-n, --npm', 'Specify install dependencies via npm')
+  .option('-y, --yarn', 'Specify install dependencies via yarn')
+  .option('-js, --js', 'Specify that this is a js project, only install <pkg>, not install @types')
   .action(installDep);
 
 commander
   .command('remove <pkg>')
-  .description('卸载指定的依赖以及@types')
+  .description('Uninstall the specified dependencies and @types')
   .action(removeDep);
 
-commander.option('-h, --help', '帮助文档');
+commander.option('-h, --help', 'Docs');
 
 try {
   commander.parse(process.argv);
 } catch (err) {
   console.log(err);
   console.log(
-    '通过',
+    'View Docs via',
     colorconsole.text('auto-type-dep --help', 'cyan'),
-    '查看帮助文档'
   );
   process.exit();
 }
