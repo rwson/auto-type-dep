@@ -60,7 +60,7 @@ const isExportedTypings = (pkg, version) => {
           if (!targetVersion) {
             resolve(false);
           } else {
-            resolve(dtsSuffix.test(targetVersion.typings));
+            resolve(dtsSuffix.test(targetVersion.typings) || dtsSuffix.test(targetVersion.types));
           }
         } catch (e) {
           resolve(false);

@@ -1,6 +1,6 @@
 {
   "name": "auto-type-dep",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "a command to automatically fill up the @types corresponding to the dependency when you install a dependency",
   "bin": {
     "auto-type-dep": "bin/index.js"
